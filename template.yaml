@@ -23,6 +23,13 @@ Resources:
       Policies:
         - S3WritePolicy:
             BucketName: !Ref UploadBucketName
+      Events:
+        Upload:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: post
+            RestApiId: !Ref UploadApi
 
   UploadApi:
     Type: AWS::Serverless::Api
@@ -33,15 +40,3 @@ Resources:
         AllowMethods: "'POST,OPTIONS'"
         AllowHeaders: "'*'"
         AllowOrigin: "'*'"
-
-  UploadApiRoute:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: UploadApiLambda
-      Events:
-        Upload:
-          Type: Api
-          Properties:
-            Path: /upload
-            Method: post
-            RestApiId: !Ref UploadApi
