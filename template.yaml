@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda to generate pre-signed S3 upload URLs
+
+Parameters:
+  UploadBucketName:
+    Type: String
+    Default: pre_signed_url_user_doc_images
+
+Resources:
+  GeneratePresignedUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GeneratePresignedUrlFunction
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.12
+      CodeUri: lambda/
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          UPLOAD_BUCKET: !Ref UploadBucketName
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref UploadBucketName
+
+  UploadApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: PreSignedUploadAPI
+      StageName: prod
+      Cors:
+        AllowMethods: "'POST,OPTIONS'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
+  UploadApiRoute:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: UploadApiLambda
+      Events:
+        Upload:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: post
+            RestApiId: !Ref UploadApi
