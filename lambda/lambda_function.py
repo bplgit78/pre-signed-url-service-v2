@@ -10,9 +10,9 @@ def lambda_handler(event, context):
     try:
         body = json.loads(event["body"])
 
-        file_name = body.get("file_name")
-        profile_exists = body.get("profile_exists", False)
-        user_id = body.get("user_id", "anonymous")
+        file_name = event["file_name"]
+        profile_exists = event["profile_exists"]
+        user_id = event["user_id"]
 
         if not file_name:
             return {
