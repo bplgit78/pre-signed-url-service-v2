@@ -3,6 +3,7 @@ import boto3
 import os
 
 s3 = boto3.client("s3")
+#presignedurluserdocimages -> bucket name
 BUCKET_NAME = os.environ["UPLOAD_BUCKET"]
 URL_EXPIRATION = 900  # 15 minutes
 

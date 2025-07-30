@@ -5,7 +5,7 @@ Description: Lambda to generate pre-signed S3 upload URLs
 Parameters:
   UploadBucketName:
     Type: String
-    Default: pre_signed_url_user_doc_images
+    Default: presignedurluserdocimages
 
 Resources:
   GeneratePresignedUrlFunction:

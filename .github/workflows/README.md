@@ -108,3 +108,32 @@ main is always deployable and CI-tested
 
 📄 License
 For private use only—no licensing restrictions.
+
+
+++ To rotate secrets:
+Semi-Automated with AWS CLI + Script
+Install AWS CLI
+
+Create a local profile with credentials having iam:*AccessKey* rights
+
+Script the rotation:
+
+
+#!/bin/bash
+USER_NAME="github-actions-deployer"
+
+# Step 1: Create new key
+CREDS=$(aws iam create-access-key --user-name "$USER_NAME")
+ACCESS_KEY_ID=$(echo $CREDS | jq -r '.AccessKey.AccessKeyId')
+SECRET_ACCESS_KEY=$(echo $CREDS | jq -r '.AccessKey.SecretAccessKey')
+
+# Step 2: Update GitHub secrets (manually or via GitHub CLI)
+gh secret set AWS_ACCESS_KEY_ID -b"$ACCESS_KEY_ID"
+gh secret set AWS_SECRET_ACCESS_KEY -b"$SECRET_ACCESS_KEY"
+
+# Step 3: Disable old keys (optional: auto detect)
+OLD_KEY_ID=$(aws iam list-access-keys --user-name "$USER_NAME" --query 'AccessKeyMetadata[?Status==`Active`].AccessKeyId' --output text | grep -v "$ACCESS_KEY_ID")
+aws iam update-access-key --access-key-id "$OLD_KEY_ID" --status Inactive --user-name "$USER_NAME"
+
+# Step 4: Delete old key after validation
+aws iam delete-access-key --access-key-id "$OLD_KEY_ID" --user-name "$USER_NAME"
